@@ -52,7 +52,7 @@ def EvaluateRegresionRF(Train,Test,Selected):
     fsutill.TestPLS()
     RFRes = pd.read_csv("Fold/y_Test_Res_RF_" + str(os.getpid()) + ".csv",index_col = 0)
     RFRes = list(RFRes.mean(1).values)
-    RMSE = ResAnaylsis.getRMSE(PLSRes,y_Data_Test)
+    RMSE = ResAnaylsis.getRMSE(RFRes,y_Data_Test)
     return {"RMSE": RMSE}
 
 def SelectWithVitaClass(DataStructure,N):
@@ -63,7 +63,7 @@ def SelectWithVitaClass(DataStructure,N):
     fsutill.RFVita()
     CompTestImportance = fsutill.getDataFrameOfVarImp("TmpFiles/VitaNSelected" + str(os.getpid()) + ".csv").sort_values(by=["VarImp"],ascending=False)
     fsutill.ChangeIndName(CompTestImportance,DataStructure.getListOfMetabolites())
-    return CompTestImportance
+    return {"Total": CompTestImportance "NSelected": CompTestImportance.head(N)}
 
 def SelectWithPLSRegresion(DataStructure,N):
     yTemplate = {1 : 0, 2 : 1, 3 : 1.5, 4 : 2, 5 : 2.5, 6 : 3, 7 : 4, 8 : 6, 9 : 8, 10 : 10, 11 : 12, 12 : 13, 13 : 13.5, 14 : 14, 15 : 14.5, 16 : 15,17 : 16, 18 : 18, 19 : 20, 20 : 22, 21 : 24, 22 : 25, 23 : 25.5, 24 : 26} 
@@ -74,7 +74,7 @@ def SelectWithPLSRegresion(DataStructure,N):
     fsutill.RFVita()
     CompTestImportance = fsutill.getDataFrameOfVarImp("TmpFiles/VitaNSelected" + str(os.getpid()) + ".csv").sort_values(by=["VarImp"],ascending=False)
     fsutill.ChangeIndName(CompTestImportance,DataStructure.getListOfMetabolites())
-    return CompTestImportance
+    return {"Total": CompTestImportance "NSelected": CompTestImportance.head(N)}
 
 def SelectWithPIMPClass(DataStructure,N):
     FunctionToEvaluate = lambda ident: 1 if 13 <= int(ident.split("-")[0]) <= 39 else 0 
@@ -84,7 +84,7 @@ def SelectWithPIMPClass(DataStructure,N):
     fsutill.RFVita()
     CompTestImportance = fsutill.getDataFrameOfVarImp("TmpFiles/VitaNSelected" + str(os.getpid()) + ".csv").sort_values(by=["VarImp"],ascending=False)
     fsutill.ChangeIndName(CompTestImportance,DataStructure.getListOfMetabolites())
-    return CompTestImportance
+    return {"Total": CompTestImportance "NSelected": CompTestImportance.head(N)}
 
 def SelectWithPIMPRegresion(DataStructure,N):
     yTemplate = {1 : 0, 2 : 1, 3 : 1.5, 4 : 2, 5 : 2.5, 6 : 3, 7 : 4, 8 : 6, 9 : 8, 10 : 10, 11 : 12, 12 : 13, 13 : 13.5, 14 : 14, 15 : 14.5, 16 : 15,17 : 16, 18 : 18, 19 : 20, 20 : 22, 21 : 24, 22 : 25, 23 : 25.5, 24 : 26} 
@@ -95,22 +95,27 @@ def SelectWithPIMPRegresion(DataStructure,N):
     fsutill.RFVita()
     CompTestImportance = fsutill.getDataFrameOfVarImp("TmpFiles/PIMPNSelected" + str(os.getpid()) + ".csv").sort_values(by=["VarImp"],ascending=False)
     fsutill.ChangeIndName(CompTestImportance,DataStructure.getListOfMetabolites())
-    return CompTestImportance
+    return {"Total": CompTestImportance "NSelected": CompTestImportance.head(N)}
 
-def MergeResultsVIPImp(ListOfSelected,N):
-    CombinedDataFrame = pd.concat(ListOfSelected, axis=1,sort=False)
+def MergeResultsVIPImp(ListOfSelected,N,InteriorMerge):
+    CombinedDataFrame = pd.concat(ListOfSelected, axis=1)
     CombinedDataFrame['Mean'] = CombinedDataFrame.mean(axis=1)
     CombinedDataFrame['STD'] = CombinedDataFrame.std(axis=1)
     CombinedDataFrame = CombinedDataFrame.sort_values(by=["Mean"],ascending=False).head(N)
     CombinedDataFrame = CombinedDataFrame[["Mean","STD"]]
     CombinedDataFrame = CombinedDataFrame.rename(columns={'Mean': 'VarImp'})
+    if (InteriorMerge):
+        SelectedWithoutSTD = []
+        for frame in OuterFoldSelected:
+            SelectedWithoutSTD.append(frame.drop(columns = ['STD']))
+        return SelectedWithoutSTD
     return CombinedDataFrame
 
 
-
 Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Dreams = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,2,2,6,6,100,SelectWithVitaClass,MergeResultsVIPImp,EvaluateClassRF)
-    
+Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,100,16,6,6,100,SelectWithVitaClass,MergeResultsVIPImp,EvaluateClassRF)
+pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("RFVita_Class_ResultsFit_100it")  
+Results['TotalSelection'].to_csv("RFVita_Class_RPLSResultsSelectc_100it")  
    
         
     

@@ -20,7 +20,7 @@ def PLSVIP():
     process.wait()
     return  
 def TestRF():
-    args = [os.getcwd() + '/CheckRF.R','/Fold/x_Data_Train_' + str(os.getpid()) + '.csv','/Fold/y_Data_Train_' + str(os.getpid()) + '.csv','/Fold/x_Data_Test_' + str(os.getpid()) + '.csv',"/Fold/y_Test_Res_RF_" + str(os.getpid()) + ".csv"]
+    args = [os.getcwd() + '/CheckRf.R','/Fold/x_Data_Train_' + str(os.getpid()) + '.csv','/Fold/y_Data_Train_' + str(os.getpid()) + '.csv','/Fold/x_Data_Test_' + str(os.getpid()) + '.csv',"/Fold/y_Test_Res_RF_" + str(os.getpid()) + ".csv"]
     process = subprocess.Popen(args,stderr=subprocess.PIPE)
     process.wait()
     return

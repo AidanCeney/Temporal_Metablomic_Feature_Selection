@@ -63,7 +63,7 @@ def SelectWithPLSClass(DataStructure,N):
     fsutill.PLSVIP()
     CompTestImportance = fsutill.getDataFrameOfVarImp("TmpFiles/PLSNSelected" + str(os.getpid()) + ".csv").sort_values(by=["VarImp"],ascending=False)
     fsutill.ChangeIndName(CompTestImportance,DataStructure.getListOfMetabolites())
-    return {"Total": CompTestImportance "NSelected": CompTestImportance.head(N)}
+    return CompTestImportance
 
 def SelectWithPLSRegresion(DataStructure,N):
     yTemplate = {1 : 0, 2 : 1, 3 : 1.5, 4 : 2, 5 : 2.5, 6 : 3, 7 : 4, 8 : 6, 9 : 8, 10 : 10, 11 : 12, 12 : 13, 13 : 13.5, 14 : 14, 15 : 14.5, 16 : 15,17 : 16, 18 : 18, 19 : 20, 20 : 22, 21 : 24, 22 : 25, 23 : 25.5, 24 : 26} 
@@ -74,29 +74,25 @@ def SelectWithPLSRegresion(DataStructure,N):
     fsutill.PLSVIP()
     CompTestImportance = fsutill.getDataFrameOfVarImp("TmpFiles/PLSNSelected" + str(os.getpid()) + ".csv").sort_values(by=["VarImp"],ascending=False)
     fsutill.ChangeIndName(CompTestImportance,DataStructure.getListOfMetabolites())
-    return {"Total": CompTestImportance "NSelected": CompTestImportance.head(N)}
+    return CompTestImportance
 
-
-def MergeResultsVIPImp(ListOfSelected,N,InteriorMerge):
+def MergeResultsVIPImp(ListOfSelected,N):
     CombinedDataFrame = pd.concat(ListOfSelected, axis=1)
     CombinedDataFrame['Mean'] = CombinedDataFrame.mean(axis=1)
     CombinedDataFrame['STD'] = CombinedDataFrame.std(axis=1)
     CombinedDataFrame = CombinedDataFrame.sort_values(by=["Mean"],ascending=False).head(N)
     CombinedDataFrame = CombinedDataFrame[["Mean","STD"]]
     CombinedDataFrame = CombinedDataFrame.rename(columns={'Mean': 'VarImp'})
-    if (InteriorMerge):
-        SelectedWithoutSTD = []
-        for frame in OuterFoldSelected:
-            SelectedWithoutSTD.append(frame.drop(columns = ['STD']))
-        return SelectedWithoutSTD
     return CombinedDataFrame
 
 
 
 Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,100,16,6,6,100,SelectWithPLSClass,MergeResultsVIPImp,EvaluateClassPLS)
-pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("PLSResultsFit_100it.csv")  
-Results['TotalSelection'].to_csv("PLSResultsSelectc_100it.csv") 
+Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,1,16,6,6,100,SelectWithPLSClass,MergeResultsVIPImp,EvaluateClassPLS)
+pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("PLSResultsFit_100it")  
+Results['TotalSelection'].to_csv("PLSResultsSelect_100it") 
         
+    
+    
     
     

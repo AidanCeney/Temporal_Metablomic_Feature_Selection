@@ -449,12 +449,3 @@ def FitnessRFRMSE(FeatureProfile,ListOfMetaboliteNames,x_Data,y_Data,numFolds):
     Fitness    = 1 / RFResults["RMSE"].mean()
     return Fitness
 
-
-'''
-    
-    
-   
-'''
-
-
-    

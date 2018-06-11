@@ -1,4 +1,4 @@
-#! /Library/Frameworks/R.framework/Versions/3.4/Resources/bin/Rscript --vanilla 
+#! /usr/lib/R/bin/Rscript --vanilla 
 library(readr)
 library(RFmarkerDetector)
 library(mixOmics)

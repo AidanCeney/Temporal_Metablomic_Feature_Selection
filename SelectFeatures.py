@@ -9,7 +9,7 @@ import multiprocessing as mp
 
 
 
-def DoubleCrossValEvaluation(MetaboDataStructure,outerN,innerN,FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,Results):
+def DoubleCrossValEvaluation(MetaboDataStructure,outerN,innerN,NumFeatures,FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,Results):
     outerFolds = MetaboDataStructure.getNFolds(outerN,True)
 
     OuterFoldSelected = []
@@ -20,16 +20,15 @@ def DoubleCrossValEvaluation(MetaboDataStructure,outerN,innerN,FunctionToSelect,
         ListOfSelectedVairbles = []
         ListOfEvaluation = []
         for innerTrain, innerTest in innerCrossFolds:
-            Selected = FunctionToSelect(innerTrain,100)
+            Selected = FunctionToSelect(innerTrain,NumFeatures)
             ListOfSelectedVairbles.append(Selected)
             ListOfEvaluation.append(FunctionToEvaluate(innerTrain,innerTest,list(Selected.index)))
-        OuterMerged = FunctionToMergeSelected(ListOfSelectedVairbles,len(OuterTrain.getListOfMetabolites()))
+        OuterMerged = FunctionToMergeSelected(ListOfSelectedVairbles,NumFeatures,True)
         OuterFoldSelected.append(OuterMerged)
         OuterFoldTest.append(FunctionToEvaluate(OuterTrain,Validate,list(OuterMerged.index))) 
-    SelectedWithoutSTD = []
-    for frame in OuterFoldSelected:
-        SelectedWithoutSTD.append(frame.drop(columns = ['STD']))
-    FinalSelection = FunctionToMergeSelected(SelectedWithoutSTD,len(OuterTrain.getListOfMetabolites()))
+    
+    FinalSelection = FunctionToMergeSelected(OuterFoldSelected,NumFeatures,True)
+    
     Results["FinalSelection"] = FinalSelection
     Results["OuterFoldTest"] = OuterFoldTest
     return Results
@@ -64,7 +63,7 @@ def EvaluateSelectionWithDoubleCFV(MetaboDataStructure,NumRepeat,NumCores,outerN
         
 
 def CreateRunProcess(MetaboDataStructure,NumCores,outerN,innerN,NumFeatures, FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,Results):
-    processes = [mp.Process(target=DoubleCrossValEvaluation, args=(MetaboDataStructure,outerN,innerN,FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,Results[i])) for i in range(NumCores)]
+    processes = [mp.Process(target=DoubleCrossValEvaluation, args=(MetaboDataStructure,outerN,innerN,NumFeatures,FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,Results[i])) for i in range(NumCores)]
     for p in processes:
         p.start()
     for p in processes:
