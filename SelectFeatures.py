@@ -45,15 +45,11 @@ def EvaluateSelectionWithDoubleCFV(MetaboDataStructure,NumRepeat,NumCores,outerN
              CreateRunProcess(MetaboDataStructure,NumCores - (NumRepeat % NumCores),outerN,innerN,NumFeatures, FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,TmpList)
          else:
              TmpList = [manager.dict() for i in range(NumCores)]
-             CreateRunProcess(MetaboDataStructure,NumCores,outerN,innerN,NumFeatures, FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,Results)
+             CreateRunProcess(MetaboDataStructure,NumCores,outerN,innerN,NumFeatures, FunctionToSelect,FunctionToMergeSelected,FunctionToEvaluate,TmpList)
          ListOFSelectedFeatures += [CoreResCoreRes["FinalSelection"] for CoreResCoreRes in TmpList]
          ListofFitness.extend([CoreResCoreRes["OuterFoldTest"] for CoreResCoreRes in TmpList])
     
-    SelectedWithoutSTD = []
-    for frame in ListOFSelectedFeatures:
-        SelectedWithoutSTD.append(frame.drop(columns = ['STD']))
-    
-    TotalSelection = FunctionToMergeSelected(SelectedWithoutSTD,NumFeatures)
+    TotalSelection = FunctionToMergeSelected(ListOFSelectedFeatures,NumFeatures,False)
     DictOfFitness = fsutill.ConvertListOfDictsToDictOfLists(ListofFitness[0])
     AVGSTDFitness = {}
     for ResType in DictOfFitness:
@@ -84,7 +80,7 @@ def MergeResultsWraper(ListOfSelected,N):
     return MergedResults
     
 def MergeResultsVIPImp(ListOfSelected,N):
-    CombinedDataFrame = pd.concat(ListOfSelected, axis=1,sort=False)
+    CombinedDataFrame = pd.concat(ListOfSelected, axis=1)
     CombinedDataFrame['Mean'] = CombinedDataFrame.mean(axis=1)
     CombinedDataFrame['STD'] = CombinedDataFrame.std(axis=1)
     CombinedDataFrame = CombinedDataFrame.sort_values(by=["Mean"],ascending=False).head(N)
