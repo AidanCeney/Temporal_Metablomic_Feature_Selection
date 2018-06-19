@@ -51,16 +51,16 @@ def getDataFrameOfVarImp(FileName,Repeat = None):
     return DataFrame.T
 
 def ChangeIndName(StructureOfNames,ListOfNames):
-    if(type(StructureOfNames) is pd.DataFrame or pd.Series):
+    
+    if(type(StructureOfNames) is (pd.DataFrame or pd.Series)):
         NewIndexs = []
         for index in StructureOfNames.index.tolist():
             NewIndexs.append(ListOfNames[int(index[1:])-1])
         StructureOfNames.index = NewIndexs
     elif(type(StructureOfNames) is  list):
-        NewIndexs = []
-        for item in StructureOfNames:
-            NewIndexs.append(ListOfNames[int(item[1:])-1])
-        StructureOfNames = NewIndexs
+        for i in range(len(StructureOfNames)):
+            item = StructureOfNames[i]
+            StructureOfNames[i] = ListOfNames[int(item[1:])-1]
     return
 def ConvertListOfDictsToDictOfLists(LOD):
     DOL = {}

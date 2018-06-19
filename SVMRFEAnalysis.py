@@ -9,8 +9,10 @@ import os
 import operator
 from sklearn.svm import SVR
 from sklearn.svm import SVC
+from sklearn.feature_selection import RFE
 
 def EvaluateClassSVM(Train,Test,Selected):
+    
     
     FunctionToEvaluate = lambda ident: 1 if 13 <= int(ident.split("-")[0]) <= 39 else 0 
     
@@ -21,6 +23,8 @@ def EvaluateClassSVM(Train,Test,Selected):
     y_Data_Train = XYTrain['y_Data']
     x_Data_Test  = XYTes['x_Data']
     y_Data_Test  = XYTes['y_Data']
+    
+    XYTrain = Train.getConditionAndFeatures(FunctionToEvaluate,Selected)
     
     
     Class_SVM = SVC(kernel="linear").fit(MetFileParser.ParetoScale(x_Data_Train),y_Data_Train)
@@ -47,7 +51,7 @@ def EvaluateRegresionSVM(Train,Test,Selected):
   
     Class_SVM = SVR(kernel="linear").fit(MetFileParser.ParetoScale(x_Data_Train),y_Data_Train)
     SVMRes = Class_SVM.predict(x_Data_Test)
-    RMSE = ResAnaylsis.getRMSE(PLSRes,y_Data_Test)
+    RMSE = ResAnaylsis.getRMSE(SVMRes,y_Data_Test)
     return {"RMSE": RMSE}
 
 def SelectWithSVMClass(DataStructure,N):
@@ -98,13 +102,28 @@ def getSVMResults(x_Data,y_Data,N,Scaling = "Pareto",Mode = "Class"):
                 Top100_REG.append("X"+ str(i + 1))
           return Top100_REG
     return -1
-    
+
+def MergeResultsWraper(ListOfSelected,N,InteriorMerge):
+    DictOfSelected = {}
+    for Selects in ListOfSelected:
+        for Selected in Selects:
+            if(DictOfSelected.get(Selected) == None):
+                DictOfSelected[Selected] = 1
+            else:
+                DictOfSelected[Selected] += 1
+    SortSelected = sorted(DictOfSelected.items(), key=operator.itemgetter(1))
+    Selected = SortSelected[:N]
+    MergedResults = [res[0] for res in Selected]
+    if(not InteriorMerge):
+        return pd.DataFrame(data=Selected)
+    return MergedResults
+        
 
 
 Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,1,16,6,6,100,SelectWithPLSClass,MergeResultsVIPImp,EvaluateClassPLS)
-pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("PLSResultsFit_100it")  
-Results['TotalSelection'].to_csv("PLSResultsSelect_100it") 
+Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,128,32,6,6,100,SelectWithSVMClass,MergeResultsWraper,EvaluateClassSVM)
+pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("SVMResultsFit_100it")  
+Results['TotalSelection'].to_csv("SVMREF.cvs") 
         
     
     

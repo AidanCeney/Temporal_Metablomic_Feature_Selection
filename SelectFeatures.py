@@ -22,10 +22,10 @@ def DoubleCrossValEvaluation(MetaboDataStructure,outerN,innerN,NumFeatures,Funct
         for innerTrain, innerTest in innerCrossFolds:
             Selected = FunctionToSelect(innerTrain,NumFeatures)
             ListOfSelectedVairbles.append(Selected)
-            ListOfEvaluation.append(FunctionToEvaluate(innerTrain,innerTest,list(Selected.index)))
+            ListOfEvaluation.append(FunctionToEvaluate(innerTrain,innerTest,getListOfSelected(Selected)))
         OuterMerged = FunctionToMergeSelected(ListOfSelectedVairbles,NumFeatures,True)
         OuterFoldSelected.append(OuterMerged)
-        OuterFoldTest.append(FunctionToEvaluate(OuterTrain,Validate,list(OuterMerged.index))) 
+        OuterFoldTest.append(FunctionToEvaluate(OuterTrain,Validate,getListOfSelected(OuterMerged))) 
     
     FinalSelection = FunctionToMergeSelected(OuterFoldSelected,NumFeatures,True)
     
@@ -65,6 +65,15 @@ def CreateRunProcess(MetaboDataStructure,NumCores,outerN,innerN,NumFeatures, Fun
     for p in processes:
         p.join()
     return
+
+def getListOfSelected(StructureOfNames):
+    if(type(StructureOfNames) is (pd.DataFrame or pd.Series)):
+        return StructureOfNames.index
+    elif (type(StructureOfNames) is list):
+        return StructureOfNames
+    elif (type(StructureOfNames) is dict):
+        return list(StructureOfNames.keys())
+    return -1
              
 def MergeResultsWraper(ListOfSelected,N):
     DictOfSelected = {}

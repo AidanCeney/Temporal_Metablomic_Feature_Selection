@@ -1,0 +1,101 @@
+,0,1
+0,hi_Arginine,1
+1,NA_C297,1
+2,NA_C587,1
+3,NA_C313,1
+4,NA_Unknown#bth-pae-011,1
+5,hi_Glutamate,1
+6,NA_C649,2
+7,NA_C653,2
+8,hi_GMP,2
+9,NA_NA_2,2
+10,hi_X2.3phosphoglycerate,3
+11,NA_C167,3
+12,AA_aspartic.acid.2tms,4
+13,NA_C213,4
+14,NA_C664,5
+15,NA_C045,5
+16,NA_C811,6
+17,NA_C109,6
+18,NA_C056,7
+19,NA_C755,7
+20,NA_C620,7
+21,hi_Adenosine,7
+22,NA_NA114002 (classified unknown),7
+23,NA_C640,8
+24,NA_C658,8
+25,"NA_Alanine, beta- (3TMS)",10
+26,NA_Thymine (2TMS),10
+27,NA_Uridine (4TMS),10
+28,NA_Levulinic acid (1MEOX) (1TMS) BP,11
+29,NA_C682,11
+30,NA_C493,11
+31,NA_Hydroxylamine (3TMS),11
+32,NA_C087,12
+33,NA_Serine (3TMS),12
+34,NA_C847,12
+35,NA_Galactose (1MEOX) (5TMS) MP,13
+36,NA_C379,14
+37,NA_C279,14
+38,NA_C014,14
+39,NA_C434,15
+40,NA_C209,15
+41,NA_Ornithine (3TMS) (Derivate not found),16
+42,NA_C432,16
+43,NA_Adenine (2TMS),17
+44,NA_5-Hydroxymethylfurfural (1MEOX) (1TMS) MP,17
+45,NA_C591,17
+46,NA_C816,17
+47,NA_C158,17
+48,NA_Phosphoric acid (3TMS),18
+49,AA_aspartic.acid.3tms,19
+50,hi_Hypoxanthine,19
+51,NA_C506,19
+52,"NA_Uridine, 2'-deoxy- (3TMS) BP",20
+53,NA_C211,20
+54,"NA_Trehalose, alpha,alpha'-, D- (8TMS)",20
+55,AA_Phenylalanine.2tms,21
+56,NA_Melibiose (1MEOX) (8TMS) MP,21
+57,"NA_Proline, 4-hydroxy-, cis- (2TMS)",21
+58,NA_Serine (2TMS),21
+59,hi_Glutamine,22
+60,NA_similar to Lumichrome (2MeOX),22
+61,NA_Norleucine (2TMS),22
+62,NA_C015,22
+63,NA_C089,22
+64,NA_C161,22
+65,NA_C668,23
+66,NA_C821,23
+67,AA_leucine.2tms,23
+68,NA_C079,23
+69,NA_C838,25
+70,NA_C054,25
+71,NA_C069,26
+72,NA_C384,26
+73,NA_Threonine (2TMS),26
+74,NA_C019,27
+75,NA_Citric acid (4TMS),27
+76,NA_C386,27
+77,NA_C681,28
+78,NA_C048,28
+79,NA_C323,28
+80,NA_C756,28
+81,NA_C016,28
+82,NA_C238,29
+83,NA_C227,29
+84,NA_C531,29
+85,NA_C145,29
+86,NA_C235,29
+87,AA_Methionine.2tms,30
+88,NA_C789,30
+89,NA_C240,30
+90,NA_C107,31
+91,AA_histidine.3tms,31
+92,AA_lysine.3tms,32
+93,NA_C081,32
+94,NA_Lysine (4TMS),32
+95,hi_Phenylalanine,33
+96,NA_C093,34
+97,NA_Threose  (1MEOX) (3TMS) BP,34
+98,NA_C150,35
+99,NA_Phenylalanine (2TMS),35
