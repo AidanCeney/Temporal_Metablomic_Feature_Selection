@@ -31,7 +31,8 @@ def EvaluateClassSVM(Train,Test,Selected):
     SVMRes = Class_SVM.predict(x_Data_Test)
     FalsePositive = ResAnaylsis.getFalsePositiveRate(SVMRes,y_Data_Test)
     TruePositive = ResAnaylsis.getTruePositiveRate(SVMRes,y_Data_Test)
-    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive}
+    CorrectClassificationRate = ResAnaylsis.getCorrectClassificationRate(SVMRes,y_Data_Test)
+    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate}
 
 
     
@@ -48,11 +49,12 @@ def EvaluateRegresionSVM(Train,Test,Selected):
     x_Data_Test  = XYTes['x_Data']
     y_Data_Test  = XYTes['y_Data']
     
-  
     Class_SVM = SVR(kernel="linear").fit(MetFileParser.ParetoScale(x_Data_Train),y_Data_Train)
+    
     SVMRes = Class_SVM.predict(x_Data_Test)
     RMSE = ResAnaylsis.getRMSE(SVMRes,y_Data_Test)
-    return {"RMSE": RMSE}
+    Qsqd = ResAnaylsis.getQsqrd(SVMRes,y_Data_Test)
+    return {"RMSE": RMSE, "Qsqd": Qsqd}
 
 def SelectWithSVMClass(DataStructure,N):
     FunctionToEvaluate = lambda ident: 1 if 13 <= int(ident.split("-")[0]) <= 39 else 0 
@@ -103,6 +105,60 @@ def getSVMResults(x_Data,y_Data,N,Scaling = "Pareto",Mode = "Class"):
           return Top100_REG
     return -1
 
+def MergeSVMClass(ListOfSelected,ListOfEvaluation,N,InteriorMerge,FinalMerge):
+    
+    if(InteriorMerge):
+        BestQsqd  = 0
+        BestSelect = []
+        for i in range(len(ListOfEvaluation)):
+            if(BestQsqd < ListOfEvaluation[i]["CorrectClassificationRate"]):
+               BestQsqd = ListOfEvaluation[i]["CorrectClassificationRate"]
+               BestSelect = ListOfSelected[i]
+        return BestSelect
+    
+    DictOfSelected = {}
+    for Selects in ListOfSelected:
+        for Selected in Selects:
+            if(DictOfSelected.get(Selected) == None):
+                DictOfSelected[Selected] = 1
+            else:
+                DictOfSelected[Selected] += 1
+    SortSelected = sorted(DictOfSelected.items(), key=operator.itemgetter(1))
+    Selected = SortSelected[:N]
+    MergedResults = [res[0] for res in Selected]
+    
+    if(not FinalMerge):
+        return MergedResults
+    
+    return pd.DataFrame(data=Selected)
+
+def MergeSVMReg(ListOfSelected,ListOfEvaluation,N,InteriorMerge,FinalMerge):
+    if(InteriorMerge):
+        BestRMSE  = 999999999999
+        BestSelect = []
+        for i in range(len(ListOfEvaluation)):
+            if(BestRMSE > ListOfEvaluation[i]["RMSE"]):
+               BestRMSE = ListOfEvaluation[i]["RMSE"]
+               BestSelect = ListOfSelected[i]
+        return BestSelect
+    
+    DictOfSelected = {}
+    for Selects in ListOfSelected:
+        for Selected in Selects:
+            if(DictOfSelected.get(Selected) == None):
+                DictOfSelected[Selected] = 1
+            else:
+                DictOfSelected[Selected] += 1
+    
+    SortSelected = sorted(DictOfSelected.items(), key=operator.itemgetter(1))
+    Selected = SortSelected[:N]
+    MergedResults = [res[0] for res in Selected]
+    
+    if(not FinalMerge):
+        return MergedResults
+    
+    return pd.DataFrame(data=Selected)
+
 def MergeResultsWraper(ListOfSelected,N,InteriorMerge):
     DictOfSelected = {}
     for Selects in ListOfSelected:
@@ -121,9 +177,9 @@ def MergeResultsWraper(ListOfSelected,N,InteriorMerge):
 
 
 Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,128,32,6,6,100,SelectWithSVMClass,MergeResultsWraper,EvaluateClassSVM)
-pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("SVMResultsFit_100it")  
-Results['TotalSelection'].to_csv("SVMREF.cvs") 
+Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,128,32,6,6,75,SelectWithSVMRegresion,MergeSVMReg,EvaluateRegresionSVM)
+pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("Res/TargetedSVMResultsFit_128it_Reg.csv")  
+Results['TotalSelection'].to_csv("Res/TargetedSVMREF_128it_Reg.csv") 
         
     
     

@@ -16,6 +16,9 @@ y_Data <- read.table(paste(getwd(), y_DataFileName, sep = ""), quote="\"", comme
 if(max(y_Data) == 1){
   y_Data <- factor(t(y_Data))
 }
+if(max(y_Data) != 1){
+  y_Data <- t(y_Data)
+}
 
 
 MetablomicsData.rf = randomForest(x_Data_Pareto,y_Data,ntree = 100, importance = TRUE)

@@ -22,6 +22,35 @@ def getRMSE(yRes,yTest):
     RMSE = MSE**.5
     return RMSE
 
+def getTSS(yTest):
+   
+    mean = np.mean(yTest)
+    
+    TSS = 0
+
+    for y in yTest:
+       TSS += (y - mean)**2
+    return TSS
+
+def getPRESS(yRes, yTest):
+    PRESS = 0
+    for i in range(len(yTest)):
+        PRESS += (yTest[i] - yRes[i])**2
+    return PRESS
+
+def getQsqrd(yRes, yTest):
+    TSS = getTSS(yTest)
+    PRESS = getPRESS(yRes, yTest)
+    return 1 - PRESS / TSS
+
+def getCorrectClassificationRate(yRes, yTest):
+    correct = 0
+    for i in range(len(yRes)):
+        if(yRes[i] == yTest[i]):
+            correct += 1
+    return correct / len(yRes)
+
+
 def getFalsePositiveRate(yRes,yTest):
     FalsePos = 0
     count = 0

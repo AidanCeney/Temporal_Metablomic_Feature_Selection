@@ -23,11 +23,11 @@ def DoubleCrossValEvaluation(MetaboDataStructure,outerN,innerN,NumFeatures,Funct
             Selected = FunctionToSelect(innerTrain,NumFeatures)
             ListOfSelectedVairbles.append(Selected)
             ListOfEvaluation.append(FunctionToEvaluate(innerTrain,innerTest,getListOfSelected(Selected)))
-        OuterMerged = FunctionToMergeSelected(ListOfSelectedVairbles,NumFeatures,True)
+        OuterMerged = FunctionToMergeSelected(ListOfSelectedVairbles,ListOfEvaluation,NumFeatures,True,False)
         OuterFoldSelected.append(OuterMerged)
         OuterFoldTest.append(FunctionToEvaluate(OuterTrain,Validate,getListOfSelected(OuterMerged))) 
     
-    FinalSelection = FunctionToMergeSelected(OuterFoldSelected,NumFeatures,True)
+    FinalSelection = FunctionToMergeSelected(OuterFoldSelected,OuterFoldTest,NumFeatures,False,False)
     
     Results["FinalSelection"] = FinalSelection
     Results["OuterFoldTest"] = OuterFoldTest
@@ -49,7 +49,7 @@ def EvaluateSelectionWithDoubleCFV(MetaboDataStructure,NumRepeat,NumCores,outerN
          ListOFSelectedFeatures += [CoreResCoreRes["FinalSelection"] for CoreResCoreRes in TmpList]
          ListofFitness.extend([CoreResCoreRes["OuterFoldTest"] for CoreResCoreRes in TmpList])
     
-    TotalSelection = FunctionToMergeSelected(ListOFSelectedFeatures,NumFeatures,False)
+    TotalSelection = FunctionToMergeSelected(ListOFSelectedFeatures,ListofFitness,NumFeatures,False,True)
     DictOfFitness = fsutill.ConvertListOfDictsToDictOfLists(ListofFitness[0])
     AVGSTDFitness = {}
     for ResType in DictOfFitness:
@@ -68,33 +68,11 @@ def CreateRunProcess(MetaboDataStructure,NumCores,outerN,innerN,NumFeatures, Fun
 
 def getListOfSelected(StructureOfNames):
     if(type(StructureOfNames) is (pd.DataFrame or pd.Series)):
-        return StructureOfNames.index
+        return list(StructureOfNames.index)
     elif (type(StructureOfNames) is list):
         return StructureOfNames
     elif (type(StructureOfNames) is dict):
         return list(StructureOfNames.keys())
     return -1
              
-def MergeResultsWraper(ListOfSelected,N):
-    DictOfSelected = {}
-    for Selects in ListOfSelected:
-        for Selected in Selects:
-            if(DictOfSelected.get(Selected) == None):
-                DictOfSelected[Selected] = 1
-            else:
-                DictOfSelected[Selected] += 1
-    SortSelected = sorted(DictOfSelected.items(), key=operator.itemgetter(1))
-    Selected = SortSelected[:N]
-    MergedResults = [res[0] for res in Selected]
-    return MergedResults
-    
-def MergeResultsVIPImp(ListOfSelected,N):
-    CombinedDataFrame = pd.concat(ListOfSelected, axis=1)
-    CombinedDataFrame['Mean'] = CombinedDataFrame.mean(axis=1)
-    CombinedDataFrame['STD'] = CombinedDataFrame.std(axis=1)
-    CombinedDataFrame = CombinedDataFrame.sort_values(by=["Mean"],ascending=False).head(N)
-    CombinedDataFrame = CombinedDataFrame[["Mean","STD"]]
-    CombinedDataFrame = CombinedDataFrame.rename(columns={'Mean': 'VarImp'})
-    return CombinedDataFrame
-    
 

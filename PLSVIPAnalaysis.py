@@ -12,7 +12,6 @@ import operator
 def EvaluateClassPLS(Train,Test,Selected):
     
     FunctionToEvaluate = lambda ident: 1 if 13 <= int(ident.split("-")[0]) <= 39 else 0 
-    XY = Train.getConditionAndFeatures(FunctionToEvaluate)
     XYTrain = Train.getConditionAndFeatures(FunctionToEvaluate,Selected)
     XYTes = Test.getConditionAndFeatures(FunctionToEvaluate,Selected)
     
@@ -28,8 +27,10 @@ def EvaluateClassPLS(Train,Test,Selected):
     PLSRes = pd.read_csv("Fold/y_Test_Res_PLS_" + str(os.getpid()) + ".csv",index_col = 0)
     PLSRes = fsutill.calcPLSdaRes(PLSRes)
     FalsePositive = ResAnaylsis.getFalsePositiveRate(PLSRes,y_Data_Test)
-    TruePositive = ResAnaylsis.getTruePositiveRate(PLSRes,y_Data_Test)
-    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive}
+    TruePositive  = ResAnaylsis.getTruePositiveRate(PLSRes  , y_Data_Test)
+    CorrectClassificationRate = ResAnaylsis.getCorrectClassificationRate(PLSRes,y_Data_Test)
+    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate}
+
 
 
     
@@ -53,7 +54,8 @@ def EvaluateRegresionPLS(Train,Test,Selected):
     PLSRes = pd.read_csv("Fold/y_Test_Res_PLS_" + str(os.getpid()) + ".csv",index_col = 0)
     PLSRes = list(PLSRes.mean(1).values)
     RMSE = ResAnaylsis.getRMSE(PLSRes,y_Data_Test)
-    return {"RMSE": RMSE}
+    Qsqd = ResAnaylsis.getQsqrd(PLSRes,y_Data_Test)
+    return {"RMSE": RMSE, "Qsqd": Qsqd}
 
 def SelectWithPLSClass(DataStructure,N):
     FunctionToEvaluate = lambda ident: 1 if 13 <= int(ident.split("-")[0]) <= 39 else 0 
@@ -77,14 +79,14 @@ def SelectWithPLSRegresion(DataStructure,N):
     return CompTestImportance 
 
 
-def MergeResultsVIPImp(ListOfSelected,N,InteriorMerge):
+def MergeResultsVIPImp(ListOfSelected,ListOfEvaluation,N,InteriorMerge,FinalMerge):
     CombinedDataFrame = pd.concat(ListOfSelected, axis=1)
     CombinedDataFrame['Mean'] = CombinedDataFrame.mean(axis=1)
     CombinedDataFrame['STD'] = CombinedDataFrame.std(axis=1)
     CombinedDataFrame = CombinedDataFrame.sort_values(by=["Mean"],ascending=False).head(N)
     CombinedDataFrame = CombinedDataFrame[["Mean","STD"]]
     CombinedDataFrame = CombinedDataFrame.rename(columns={'Mean': 'VarImp'})
-    if (InteriorMerge):
+    if (not FinalMerge):
         CombinedDataFrame = CombinedDataFrame.drop(columns = ['STD'])
         return CombinedDataFrame
     return CombinedDataFrame.head(N)
@@ -92,9 +94,9 @@ def MergeResultsVIPImp(ListOfSelected,N,InteriorMerge):
 
 
 Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,100,16,6,6,100,SelectWithPLSClass,MergeResultsVIPImp,EvaluateClassPLS)
-pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("PLSResultsFit_100it.csv")  
-Results['TotalSelection'].to_csv("PLSResultsSelectc_100it.csv") 
+Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,128,32,6,6,50,SelectWithPLSClass,MergeResultsVIPImp,EvaluateClassPLS)
+pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("Res/Targeted_Class_PLSResultsFit_128it.csv")  
+Results['TotalSelection'].to_csv("Res/Targeted_Class_PLSResultsSelectc_128it.csv") 
         
     
     
