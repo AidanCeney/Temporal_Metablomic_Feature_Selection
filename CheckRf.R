@@ -1,4 +1,4 @@
-#! /usr/lib/R/bin/Rscript --vanilla
+#! /usr/local/bin/Rscript --vanilla 
 library(readr)
 library(RFmarkerDetector)
 library(randomForest)
