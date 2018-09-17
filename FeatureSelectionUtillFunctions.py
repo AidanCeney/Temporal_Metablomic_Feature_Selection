@@ -65,10 +65,19 @@ def ChangeIndName(StructureOfNames,ListOfNames):
 def ConvertListOfDictsToDictOfLists(LOD):
     DOL = {}
     for aKey in LOD[0]:
-        DOL[aKey] = []
+        if(aKey == "y_Test_Pedict"):
+            DOL[aKey] = {"y_Data_Test": [], "y_Predict": []}
+        else:
+            DOL[aKey] = []
+    
     for items in LOD:
         for aKey in items:
-            DOL[aKey].append(items[aKey])
+            if(aKey == "y_Test_Pedict"):  
+                for i in range(len(items[aKey]["y_Data_Test"])):
+                    DOL[aKey]['y_Data_Test'].append(items[aKey]["y_Data_Test"][i])
+                    DOL[aKey]['y_Predict'].append(items[aKey]["y_Predict"][i])
+            else:
+                DOL[aKey].append(items[aKey])
     return DOL
 
 def calcPLSdaRes(ResPLSDADataFrame):
@@ -76,3 +85,4 @@ def calcPLSdaRes(ResPLSDADataFrame):
     Results = ResPLSDADataFrame["X0.dim.1"].values + ResPLSDADataFrame["X0.dim.2"].values
     
     return [int(res <= 1)for res in Results]
+

@@ -11,6 +11,9 @@ from sklearn.svm import SVR
 from sklearn.svm import SVC
 from sklearn.feature_selection import RFE
 
+
+
+
 def EvaluateClassSVM(Train,Test,Selected):
     
     
@@ -32,7 +35,7 @@ def EvaluateClassSVM(Train,Test,Selected):
     FalsePositive = ResAnaylsis.getFalsePositiveRate(SVMRes,y_Data_Test)
     TruePositive = ResAnaylsis.getTruePositiveRate(SVMRes,y_Data_Test)
     CorrectClassificationRate = ResAnaylsis.getCorrectClassificationRate(SVMRes,y_Data_Test)
-    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate}
+    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate,"y_Test_Pedict": {"y_Data_Test": y_Data_Test, "y_Predict": SVMRes}}
 
 
     
@@ -54,7 +57,7 @@ def EvaluateRegresionSVM(Train,Test,Selected):
     SVMRes = Class_SVM.predict(x_Data_Test)
     RMSE = ResAnaylsis.getRMSE(SVMRes,y_Data_Test)
     Qsqd = ResAnaylsis.getQsqrd(SVMRes,y_Data_Test)
-    return {"RMSE": RMSE, "Qsqd": Qsqd}
+    return {"RMSE": RMSE, "Qsqd": Qsqd, "y_Test_Pedict": {"y_Data_Test": y_Data_Test, "y_Predict": SVMRes}}
 
 def SelectWithSVMClass(DataStructure,N):
     FunctionToEvaluate = lambda ident: 1 if 13 <= int(ident.split("-")[0]) <= 39 else 0 
@@ -84,7 +87,7 @@ def getSVMResults(x_Data,y_Data,N,Scaling = "Pareto",Mode = "Class"):
     
     if (Mode == "Class"):
         Class_SVM = SVC(kernel="linear")
-        Class_RFE = RFE(Class_SVM, N, step=10)
+        Class_RFE = RFE(Class_SVM, N, step=5)
         Class_RFE = Class_RFE.fit(x_Data,y_Data)
         
         Top100_Class = []
@@ -95,7 +98,7 @@ def getSVMResults(x_Data,y_Data,N,Scaling = "Pareto",Mode = "Class"):
     
     elif (Mode == "Regression"):
           REG_SVM   = SVR(kernel="linear")
-          REG_RFE   = RFE(REG_SVM, N, step=10)   
+          REG_RFE   = RFE(REG_SVM, N, step=5)   
           REG_RFE   = REG_RFE.fit(x_Data,y_Data)
     
           Top100_REG = []
@@ -159,27 +162,32 @@ def MergeSVMReg(ListOfSelected,ListOfEvaluation,N,InteriorMerge,FinalMerge):
     
     return pd.DataFrame(data=Selected)
 
-def MergeResultsWraper(ListOfSelected,N,InteriorMerge):
-    DictOfSelected = {}
-    for Selects in ListOfSelected:
-        for Selected in Selects:
-            if(DictOfSelected.get(Selected) == None):
-                DictOfSelected[Selected] = 1
-            else:
-                DictOfSelected[Selected] += 1
-    SortSelected = sorted(DictOfSelected.items(), key=operator.itemgetter(1))
-    Selected = SortSelected[:N]
-    MergedResults = [res[0] for res in Selected]
-    if(not InteriorMerge):
-        return pd.DataFrame(data=Selected)
-    return MergedResults
-        
+def MergeResultsWraper(ListOfSelected,ListOfEvaluation,N,InteriorMerge,FinalMerge):
+    
+    if(FinalMerge):
+        DictOfSelected = {}
+        for Selects in ListOfSelected:
+            for Selected in Selects:
+                if(DictOfSelected.get(Selected) == None):
+                    DictOfSelected[Selected] = 1
+                else:
+                    DictOfSelected[Selected] += 1
+        SortSelected = sorted(DictOfSelected.items(), key=operator.itemgetter(1))
+        Selected = SortSelected[:N]
+        MergedResults = [res[0] for res in Selected]
+        if(not InteriorMerge):
+            return pd.DataFrame(data=Selected)
+        return MergedResults
+    else:
+        ret = []
+        for selects in ListOfSelected:
+            for met in selects:
+                ret.append(met)
+        return ret
+            
 
 
-Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,128,32,6,6,75,SelectWithSVMRegresion,MergeSVMReg,EvaluateRegresionSVM)
-pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("Res/TargetedSVMResultsFit_128it_Reg.csv")  
-Results['TotalSelection'].to_csv("Res/TargetedSVMREF_128it_Reg.csv") 
+
         
     
     

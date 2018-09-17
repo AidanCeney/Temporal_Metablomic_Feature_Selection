@@ -29,7 +29,7 @@ def EvaluateClassPLS(Train,Test,Selected):
     FalsePositive = ResAnaylsis.getFalsePositiveRate(PLSRes,y_Data_Test)
     TruePositive  = ResAnaylsis.getTruePositiveRate(PLSRes  , y_Data_Test)
     CorrectClassificationRate = ResAnaylsis.getCorrectClassificationRate(PLSRes,y_Data_Test)
-    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate}
+    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate, "y_Test_Pedict": {"y_Data_Test": y_Data_Test, "y_Predict": PLSRes}}
 
 
 
@@ -55,7 +55,7 @@ def EvaluateRegresionPLS(Train,Test,Selected):
     PLSRes = list(PLSRes.mean(1).values)
     RMSE = ResAnaylsis.getRMSE(PLSRes,y_Data_Test)
     Qsqd = ResAnaylsis.getQsqrd(PLSRes,y_Data_Test)
-    return {"RMSE": RMSE, "Qsqd": Qsqd}
+    return {"RMSE": RMSE, "Qsqd": Qsqd, "y_Test": y_Data_Test, "y_Pedict": PLSRes, "y_Test_Pedict": {"y_Data_Test": y_Data_Test, "y_Predict": PLSRes}}
 
 def SelectWithPLSClass(DataStructure,N):
     FunctionToEvaluate = lambda ident: 1 if 13 <= int(ident.split("-")[0]) <= 39 else 0 
@@ -93,10 +93,7 @@ def MergeResultsVIPImp(ListOfSelected,ListOfEvaluation,N,InteriorMerge,FinalMerg
 
 
 
-Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,128,32,6,6,50,SelectWithPLSClass,MergeResultsVIPImp,EvaluateClassPLS)
-pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("Res/Targeted_Class_PLSResultsFit_128it.csv")  
-Results['TotalSelection'].to_csv("Res/Targeted_Class_PLSResultsSelectc_128it.csv") 
+
         
     
     

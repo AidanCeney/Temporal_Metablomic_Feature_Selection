@@ -30,7 +30,7 @@ def EvaluateClassRF(Train,Test,Selected):
     FalsePositive = ResAnaylsis.getFalsePositiveRate(RFRes, y_Data_Test)
     TruePositive  = ResAnaylsis.getTruePositiveRate(RFRes  , y_Data_Test)
     CorrectClassificationRate = ResAnaylsis.getCorrectClassificationRate(RFRes,y_Data_Test)
-    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate}
+    return {"FalsePositive": FalsePositive, "TruePositive": TruePositive, "CorrectClassificationRate": CorrectClassificationRate, "y_Test_Pedict": {"y_Data_Test": y_Data_Test, "y_Predict": RFRes}}
 
 
 
@@ -56,7 +56,7 @@ def EvaluateRegresionRF(Train,Test,Selected):
     RFRes = list(RFRes.mean(1).values)
     RMSE = ResAnaylsis.getRMSE(RFRes,y_Data_Test)
     Qsqd = ResAnaylsis.getQsqrd(RFRes,y_Data_Test)
-    return {"RMSE": RMSE, "Qsqd": Qsqd}
+    return {"RMSE": RMSE, "Qsqd": Qsqd, "y_Test_Pedict": {"y_Data_Test": y_Data_Test, "y_Predict": RFRes}}
 
 
 def SelectWithVitaClass(DataStructure,N):
@@ -114,11 +114,6 @@ def MergeResultsVIPImp(ListOfSelected,ListOfEvaluation,N,InteriorMerge,FinalMerg
     return CombinedDataFrame.head(N)
 
 
-Test = MetFileParser.readMetaboliteAndCondition(["Raw Data/NA_perCell.csv","Raw Data/hil_perCell.csv","Raw Data/AA_perCell.csv"],[1,1,1],[[0,2,3,4,5],[0,2,3,4,5,6],[0,2,3,4,5,6]],list(range(72)))
-Results = SelectFeatures.EvaluateSelectionWithDoubleCFV(Test,128,32,6,6,100,SelectWithPIMPRegresion,MergeResultsVIPImp,EvaluateRegresionRF)
-pd.DataFrame(data=Results['AVGSTDFitness']).to_csv("Res/RF_PIMP_Reg_ResultsFit_128it.csv")  
-Results['TotalSelection'].to_csv("Res/RF_PIMP_Reg_RPLSResultsSelectc_128it.csv")  
-   
         
     
     

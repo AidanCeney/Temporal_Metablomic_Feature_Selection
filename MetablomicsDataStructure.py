@@ -61,14 +61,15 @@ class MetDataStructure:
     def getNFolds(self,N,Randomize):
         if(Randomize):
             shuffle(self._ListOfIdentifiers)
-        if(len(self._ListOfIdentifiers) % N != 0):
-            print("Sample Number is not a factor of Folds")
-            return
+        
         Shift = int(len(self._ListOfIdentifiers) / N) #Length of Test Data
         NFolds= []
         for i in range (N):
-            TrainStartStop =  [[0,i*Shift],[Shift*(i+1),len(self._ListOfIdentifiers)]]
-            TestStartStop   = [[i*Shift,(i+1)*Shift]]
+            Extra = 0
+            if(i == N -1):
+                Extra = len(self._ListOfIdentifiers) % N 
+            TrainStartStop =  [[0,i*Shift],[Shift*(i+1),len(self._ListOfIdentifiers) - Extra]]
+            TestStartStop   = [[i*Shift,(i+1)*Shift + Extra]]
             NFolds.append([self.getFold(TrainStartStop),self.getFold(TestStartStop)])
         return NFolds
         
